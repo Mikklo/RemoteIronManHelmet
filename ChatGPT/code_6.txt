@@ -1,0 +1,62 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+
+const char* ssid = "Jarvis";
+const char* password = "iamironman";
+const char* url1 = "http://192.168.0.1/mask";
+const char* url2 = "http://192.168.0.1/eyes";
+
+const int buttonPin1 = 0; // GPIO0
+const int buttonPin2 = 2; // GPIO2
+int buttonState1 = HIGH;
+int lastButtonState1 = HIGH;
+int buttonState2 = HIGH;
+int lastButtonState2 = HIGH;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(buttonPin1, INPUT_PULLUP);
+  pinMode(buttonPin2, INPUT_PULLUP);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+
+  Serial.println("Connected to WiFi");
+}
+
+void loop() {
+  // Button 1
+  buttonState1 = digitalRead(buttonPin1);
+
+  if (buttonState1 == LOW && lastButtonState1 == HIGH) {
+    Serial.println("Button 1 pressed");
+
+    HTTPClient http;
+    http.begin(WiFiClient(), url1);
+    int httpCode = http.GET();
+    http.end();
+
+    Serial.printf("HTTP GET status code: %d\n", httpCode);
+  }
+
+  lastButtonState1 = buttonState1;
+
+  // Button 2
+  buttonState2 = digitalRead(buttonPin2);
+
+  if (buttonState2 == LOW && lastButtonState2 == HIGH) {
+    Serial.println("Button 2 pressed");
+
+    HTTPClient http;
+    http.begin(WiFiClient(), url2);
+    int httpCode = http.GET();
+    http.end();
+
+    Serial.printf("HTTP GET status code: %d\n", httpCode);
+  }
+
+  lastButtonState2 = buttonState2;
+}
